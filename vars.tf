@@ -9,8 +9,11 @@ variable "attach_vpc_config" {
   default     = "false"
 }
 
-variable "vpc_config" {
-  type        = "map"
+variable "vpc_config"{
+  type = object({
+    security_group_ids = list(string)
+    subnet_ids         = list(string)
+  })
   description = "Lambda VPC Config"
-  default     = {}
+  default     = null
 }
