@@ -49,61 +49,61 @@
  */
 
 resource "aws_cloudwatch_event_rule" "rule_http_check" {
-  count = "${length(var.checks)}"
-  name = "${lookup(var.checks[count.index],"name")}"
-  description = "HTTP Check Rule for ${lookup(var.checks[count.index], "url")}"
-  schedule_expression = "rate(${lookup(var.checks[count.index],"rate")})"
+  count               = "${length(var.checks)}"
+  name                = "${lookup(var.checks[count.index], "name")}"
+  description         = "HTTP Check Rule for ${lookup(var.checks[count.index], "url")}"
+  schedule_expression = "rate(${lookup(var.checks[count.index], "rate")})"
 }
 
 resource "aws_cloudwatch_event_target" "event_target_http_check" {
-  count = "${length(var.checks)}"
-  target_id = "${lookup(var.checks[count.index],"name")}"
-  rule = "${element(aws_cloudwatch_event_rule.rule_http_check.*.name, count.index)}"
-  arn = "${module.lambda.function_arn}"
+  count     = "${length(var.checks)}"
+  target_id = "${lookup(var.checks[count.index], "name")}"
+  rule      = "${element(aws_cloudwatch_event_rule.rule_http_check.*.name, count.index)}"
+  arn       = "${module.lambda.function_arn}"
 
   input = <<JSON
 {
-  "url": "${lookup(var.checks[count.index],"url")}",
+  "url": "${lookup(var.checks[count.index], "url")}",
   "valid_status_codes": "${lookup(var.checks[count.index], "valid_status_codes")}"
 }
 JSON
 }
 
 resource "aws_cloudwatch_metric_alarm" "alarm_http_check_response" {
-  count = "${length(var.checks)}"
-  alarm_name = "response-${lookup(var.checks[count.index], "name")}"
+  count               = "${length(var.checks)}"
+  alarm_name          = "response-${lookup(var.checks[count.index], "name")}"
   comparison_operator = "GreaterThanThreshold"
-  evaluation_periods = 3
-  threshold = "${lookup(var.checks[count.index], "threshold")}"
-  metric_name = "WebResponseTime"
-  namespace = "HTTP Checks"
-  
+  evaluation_periods  = 3
+  threshold           = "${lookup(var.checks[count.index], "threshold")}"
+  metric_name         = "WebResponseTime"
+  namespace           = "HTTP Checks"
+
   dimensions = {
     "URL" = "${lookup(var.checks[count.index], "url")}"
   }
-  
-  statistic  = "Maximum"
-  period = "60"
+
+  statistic = "Maximum"
+  period    = "60"
 }
 
 resource "aws_cloudwatch_metric_alarm" "alarm_http_check_status" {
-  count = "${length(var.checks)}"
-  alarm_name = "status-${lookup(var.checks[count.index], "name")}"
+  count               = "${length(var.checks)}"
+  alarm_name          = "status-${lookup(var.checks[count.index], "name")}"
   comparison_operator = "GreaterThanThreshold"
-  evaluation_periods = 3
-  threshold = "1"
-  metric_name = "WebStatus"
-  namespace = "HTTP Checks"
-  
+  evaluation_periods  = 3
+  threshold           = "1"
+  metric_name         = "WebStatus"
+  namespace           = "HTTP Checks"
+
   dimensions = {
     "URL" = "${lookup(var.checks[count.index], "url")}"
   }
 
-  ok_actions = "${list(lookup(var.checks[count.index], "ok_action",""))}"  
-  insufficient_data_actions= "${compact(list(lookup(var.checks[count.index], "insufficient_data_action","")))}"  
-  alarm_actions = "${compact(list(lookup(var.checks[count.index], "alarm_action","")))}"  
-  
-  
-  statistic  = "Maximum"
-  period = "60"
+  ok_actions                = "${list(lookup(var.checks[count.index], "ok_action", ""))}"
+  insufficient_data_actions = "${compact(list(lookup(var.checks[count.index], "insufficient_data_action", "")))}"
+  alarm_actions             = "${compact(list(lookup(var.checks[count.index], "alarm_action", "")))}"
+
+
+  statistic = "Maximum"
+  period    = "60"
 }
