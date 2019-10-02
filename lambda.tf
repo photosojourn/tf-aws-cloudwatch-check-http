@@ -23,10 +23,10 @@ module "lambda" {
   timeout                        = 300
   reserved_concurrent_executions = 1
 
-  source_path = "${path.module}/lambda.py"
+  source_path = path.module/lambda.py
 
   policy     = {
-      json = "${data.aws_iam_policy_document.lambda.json}"
+      json = data.aws_iam_policy_document.lambda.json
   }
 
   vpc_config = "${var.vpc_config}"
@@ -35,7 +35,7 @@ module "lambda" {
 resource "aws_lambda_permission" "allow_cloudwatch" {
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
-  function_name = "${module.lambda.function_arn}"
+  function_name = module.lambda.function_arn
   principal     = "events.amazonaws.com"
-  source_arn    = "${aws_cloudwatch_event_rule.rule_http_check.*.arn}"
+  source_arn    = aws_cloudwatch_event_rule.rule_http_check.*.arn
 }
