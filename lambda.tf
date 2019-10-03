@@ -37,5 +37,5 @@ resource "aws_lambda_permission" "allow_cloudwatch" {
   action        = "lambda:InvokeFunction"
   function_name = module.lambda.function_arn
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.rule_http_check.*.arn
+  source_arn    = "${aws_cloudwatch_event_rule.rule_http_check.*.arn}"
 }
