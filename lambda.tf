@@ -23,7 +23,7 @@ module "lambda" {
   timeout                        = 300
   reserved_concurrent_executions = 1
 
-  source_path = path.module/lambda.py
+  source_path = "${path.module}/lambda.py"
 
   policy     = {
       json = data.aws_iam_policy_document.lambda.json
